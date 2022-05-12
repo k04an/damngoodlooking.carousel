@@ -26,67 +26,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Slider</title>
 
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;500&display=swap" rel="stylesheet"> 
+
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
 
     <!-- Styles -->
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-        }
-
-        .slider-img {
-            width: 264px;
-            height: 299px;
-            object-fit: cover;
-            object-position: center;
-            position: absolute; 
-            transition: 0.25s;
-        }
-
-        .slider {
-            transform-style: preserve-3d;
-            perspective: 1000px;
-            position: relative;
-            height: 299px;
-            display: flex;
-            justify-content: center;
-        }
-
-        #slide0 {
-            transform: translate3d(-120%,0,-200px) rotateY(45deg);
-        }
-
-        #slide1 {
-            transform: translate3d(-65%,0,-100px) rotateY(45deg);
-        }
-
-        #slide3 {
-            transform: translate3d(65%,0,-100px) rotateY(-45deg);
-        }
-
-        #slide4 {
-            transform: translate3d(120%,0,-200px) rotateY(-45deg);
-        }
-
-        #slide-to-hide {
-            transform: translate3d(-180%,0,-300px) rotateY(45deg);
-            opacity: 0;
-        }
-
-        #slide-to-show {
-            transform: translate3d(180%,0,-300px) rotateY(45deg);
-            opacity: 0;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div id="app">
-        <div class="slider">
-            <img v-for="(pic, index) in pics" :src="pic.path" :id="pic.id" class="slider-img" >
+        <div class="carousel-wrapper">
+            <div class="slider">
+                <div v-for="(pic, index) in pics" class="slide" :id="pic.id"
+                     :style="{ transition: pic.isWin ? '0.2s' : transition + 's' }" :class="{'slide-win': pic.isWin}">
+                    <div style="position: relative">
+                        <img :src="pic.path" class="slide-img" 
+                            :style="{ 'border-radius': pic.isWin ? '0px' : '5px' }">
+                        
+                        <!-- <div class="slide-label" v-show="pic.isWin">
+                            <div style="position: relative">
+                                <img src="assets/logo.svg" alt="opensea-logo">
+                                <span class="label-top">Цена на OpenSea</span>
+                                <span class="label-price">$3 000.86</span>
+                            </div>
+                        </div> -->
+                    </div>
+                </div>
+            </div>
+            <img src="assets/glow.svg" alt="glow" class="glow-svg" v-show="isWin">
+            <img src="assets/bg.svg" alt="background" class="background-svg">
         </div>
-        <button @click="randomise">Shift</button>
+        <button @click="startSliding" style="font-size: 24px;">Roll</button>
     </div>
 
     <script>
@@ -97,17 +71,20 @@
                 return {
                     pics: '<?php echo getPics()?>',
                     position: 0,
-                    picsToShow: null,
-                    SLIDESNUMBER: 5
+                    SLIDESNUMBER: 5,
+                    isSliding: false,
+                    isWin: false,
+                    transition: 0.05
                 }
             },
             methods: {
                 // Перелистывание слайдов
                 shiftPics() {
                     // Сбрасываем счетчик при достиженни последней картинки
-                    if (this.position == this.pics.length + 1) this.position = 0
+                    if (this.position == this.pics.length + 1) this.position = 1
 
-                    // Плавно скрываем предыдущий слайд
+                    // Плавно скрываем предыдущие слайды
+                    this.pics[((this.position - 2) % this.pics.length + this.pics.length) % this.pics.length].id = 'slide-hidden'
                     this.pics[((this.position - 1) % this.pics.length + this.pics.length) % this.pics.length].id = 'slide-to-hide'
 
                     // Определяем массив выводимых изображений при помощи магической формулы
@@ -123,21 +100,72 @@
                     this.position++
                 },
 
-                randomise(times = null) {
-                    let x
-                    if (!times && times != 0) {
-                        x = Math.round(Math.random() * 5 + 10)
-                    } else {
-                        x = times
+                // Начало "игры"
+                startSliding() {
+                    if (!this.isSliding) {
+                        // Сбрасываем стили картинки после предыдущей игры
+                        this.pics[((this.position + 1) % this.pics.length + this.pics.length) % this.pics.length].isWin = false 
+
+                        // Убираем общие стили предыдущей игры
+                        this.isWin = false
+
+                        // Объявляем что карусель крутиться
+                        this.isSliding = true
+
+                        // Генериреум или ПОЛУЧАЕМ число оборотов и начинаем крутить
+                        this.slide(Math.round(Math.random() * 20 + 10))
                     }
-                    if (x != 0 ) {
+                },
+
+                // Рекурсивный метод для анимации перелистывания
+                slide(times = null, frame = null) {
+                    if (!frame && frame != 0) {
+                        // Первый кадр
                         this.shiftPics()
                         setTimeout(() => {
-                            this.randomise(x - 1)
-                        }, 300); 
-                    } else {
-                        alert('you won a nigger')
+                            this.transition = this.getInterval(times, times)
+                            this.slide(times, times - 1)
+                        }, this.transition * 1000);
+
+                    } else if (frame && frame != 0) {
+                        // Последующие кадры
+                        this.shiftPics()
+                        setTimeout(() => {
+                            this.transition = this.getInterval(times, frame)
+                            this.slide(times, frame - 1)
+                        }, this.transition * 1000);
+                    } else if (frame == 0) {
+                        // Конец анимации
+                        this.transition = 0.05 //  Сбрасывам интервал перелистывания
+                        this.isSliding = false // Объявляем что слайдер перестал крутиться
+                        this.isWin = true // Выводим доп стили, при победе
+
+                        // Применяем доп. стили к выигрышной картинке
+                        this.pics[((this.position + 1) % this.pics.length + this.pics.length) % this.pics.length].isWin = true 
                     }
+                },
+
+                // Получения интервала между прокрутками. Должен замедлятся со временм
+                getInterval(startFrame, currentFrame) {
+                    // Конвертируем текущий кадр, в процент законченности анимации
+                    let percentage = this.map(currentFrame, startFrame, 0, 0, 100) 
+
+                    // Возвращаем диапазон
+                    // Пока не использую никакую сложную функцию, просто процент завершенности
+                    // деленный на 100
+                    return percentage / 200 + 0.05
+                },
+                
+                // Функция масштабирующая число из одного диапазона, в другой. Тоже магия какая-то. 
+                map(value, fromStart, fromEnd, toStart, toEnd) {
+                    return toStart + (toEnd - toStart) * ((value - fromStart) / (fromEnd - fromStart))
+                },
+
+                // Сброс стилей
+                reset() {
+                    this.pics.forEach(pic => {
+                        pic.isWin = false
+                    })
                 }
             },
             mounted() {
@@ -145,8 +173,14 @@
                 this.pics = Object.values(JSON.parse(this.pics)).map(pic => {
                     return {
                         path: pic,
-                        id: null
+                        id: null,
+                        isWin: false
                     }
+                })
+
+                // Скрываем все картинки
+                this.pics.forEach(pic => {
+                    pic.id = 'slide-hidden'
                 })
 
                 this.shiftPics()

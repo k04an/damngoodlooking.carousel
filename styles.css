@@ -1,0 +1,144 @@
+* {
+    margin: 0;
+    padding: 0;
+    font-family: 'Rubik', sans-serif;
+}
+
+body {
+    background-color: #201e2a;
+}
+
+.slide {
+    width: 264px;
+    height: 299px;
+    position: absolute; 
+}
+
+.slide-img {
+    width: 264px;
+    height: 299px;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 5px;
+}
+
+.slider {
+    transform-style: preserve-3d;
+    perspective: 1000px;
+    position: relative;
+    height: 299px;
+    display: flex;
+    justify-content: center;
+    margin-top: 100px;
+    z-index: 1;
+}
+
+#slide0 {
+    transform: translate3d(-120%,0,-200px) rotateY(45deg);
+}
+
+#slide1 {
+    transform: translate3d(-65%,0,-100px) rotateY(45deg);
+}
+
+#slide3 {
+    transform: translate3d(65%,0,-100px) rotateY(-45deg);
+}
+
+#slide4 {
+    transform: translate3d(120%,0,-200px) rotateY(-45deg);
+}
+
+#slide-to-hide {
+    transform: translate3d(-180%,0,-300px) rotateY(45deg);
+    opacity: 0;
+}
+
+#slide-to-show {
+    transform: translate3d(180%,0,-300px) rotateY(45deg);
+    opacity: 0;
+}
+
+#slide-hidden {
+    display: none;
+}
+
+.slide-win {
+    border: solid 7px transparent;
+    border-image: linear-gradient(93.51deg, #9B51E0 2.84%, #3081ED 99.18%);
+    box-shadow: 0px 0px 14px 5px #855BE3;
+    border-image-slice: 1;
+}
+
+.slide-label {
+    position: absolute;
+    bottom: 7px;
+    left: 6px;
+    background: rgba(48, 129, 237, 0.3);
+    width: 251px;
+    height: 56px;
+    border-radius: 5px;
+    backdrop-filter: blur(4px);
+    display: flex;
+    animation: showLabel 1s;
+}
+
+.background-svg {
+    position: absolute;
+    bottom: -76px;
+    transform: translate(53px);
+}
+
+.glow-svg {
+    position: absolute;
+    bottom: -45px;
+    animation: showLabel 1s;
+}
+
+.carousel-wrapper {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    z-index: -1;
+}
+
+.slide-label img {
+    position: absolute;
+    left: 60px;
+    top: 16px;
+}
+
+@keyframes showLabel {
+    0% {
+        opacity: 0;
+        transform: translate(0, -20%);
+    },
+
+    100% {
+        opacity: 1;
+        transform: translate(0, 0);
+    }
+}
+
+.label-top {
+    color: white;
+    font-weight: 300;
+    font-size: 12px;
+    line-height: 14px;
+    position: absolute;
+    left: 92px; 
+    top: 9px;
+    width: 99px;
+}
+
+.label-price {
+    color: white;
+    position: absolute;
+    left: 101px;
+    top: 34px;
+    width: 82px;
+    font-family: 'Rubik';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 16px;
+}
