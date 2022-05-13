@@ -33,6 +33,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="js/cubic-bezier.js"></script> 
 
     <!-- Styles -->
     <link rel="stylesheet" href="styles.css">
@@ -113,7 +114,7 @@
                         this.isSliding = true
 
                         // Генериреум или ПОЛУЧАЕМ число оборотов и начинаем крутить
-                        this.slide(Math.round(Math.random() * 20 + 10))
+                        this.slide(Math.round(Math.random() * 20 + 50))
                     }
                 },
 
@@ -148,12 +149,15 @@
                 // Получения интервала между прокрутками. Должен замедлятся со временм
                 getInterval(startFrame, currentFrame) {
                     // Конвертируем текущий кадр, в процент законченности анимации
-                    let percentage = this.map(currentFrame, startFrame, 0, 0, 100) 
+                    let percentage = this.map(currentFrame, startFrame, 0, 0, 1) 
 
-                    // Возвращаем диапазон
-                    // Пока не использую никакую сложную функцию, просто процент завершенности
-                    // деленный на 100
-                    return percentage / 200 + 0.05
+                    // Получаем тайминг-функцию при помощи кривых Безье.
+                    // Используется opensource библиотека
+                    // (https://github.com/gre/bezier-easing)
+                    const timingFunction = bezier(.69,.01,1,.2)
+                    
+                    // Возвращаем интервал перелистывания в зависимости от % завершнности анимации
+                    return timingFunction(percentage).toFixed(3)
                 },
                 
                 // Функция масштабирующая число из одного диапазона, в другой. Тоже магия какая-то. 
