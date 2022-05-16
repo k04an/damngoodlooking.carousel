@@ -143,3 +143,37 @@ body {
     font-weight: 500;
     font-size: 16px;
 }
+
+@media screen and (max-width: 412px) {
+    #slide0 {
+        opacity: 0;
+    }
+
+    #slide4 {
+        opacity: 0;
+    }
+
+    .slide-img {
+        width: 188px;
+        height: 213px;
+        object-fit: cover;
+        object-position: center;
+        border-radius: 5px;
+    }
+
+    .slide {
+        width: 188px;
+        height: 213px;
+        position: absolute; 
+    }
+
+    .background-svg {
+        display: none;
+    }
+
+    .glow-svg {
+        position: absolute;
+        bottom: 43px;
+        animation: showLabel 1s;
+    }
+}
