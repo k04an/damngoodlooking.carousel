@@ -43,7 +43,8 @@
         <div class="carousel-wrapper">
             <div class="slider">
                 <div v-for="(pic, index) in pics" class="slide" :id="pic.id"
-                     :style="{ transition: pic.isWin ? '0.2s' : transition + 's' }" :class="{'slide-win': pic.isWin}">
+                     :style="{ transition: pic.isWin ? '0.2s' : transition + 's' }"
+                     :class="{ 'slide-win': pic.isWin }">
                     <div style="position: relative">
                         <img :src="pic.path" class="slide-img" 
                             :style="{ 'border-radius': pic.isWin ? '0px' : '5px' }">
@@ -65,7 +66,6 @@
     </div>
 
     <script>
-
         const app = new Vue({
             el: '#app',
             data() {
