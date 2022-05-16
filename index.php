@@ -70,12 +70,29 @@
             el: '#app',
             data() {
                 return {
-                    pics: '<?php echo getPics()?>',
+                    picSrcs: '<?php echo getPics()?>',
+                    pics: [],
+                    picsPath: '<?=$path?>',
                     position: 0,
                     SLIDESNUMBER: 5,
                     isSliding: false,
                     isWin: false,
-                    transition: 0.05
+                    transition: 0.05,
+
+                    // Вероятности укзаываются тут, в виде:
+                    // <название файла>: <процент выпадения. знак процента писать не надо>
+                    probabilities: {
+                        '1.jpg': 10,
+                        '2.jpg': 10,
+                        '3.jpg': 20,
+                        '4.jpg': 10,
+                        '5.jpg': 10,
+                        '6.jpg': 10,
+                        '7.jpg': 10,
+                        '8.jpg': 5,
+                        '9.jpg': 5,
+                        'figma_pic.png': 10,
+                    }
                 }
             },
             methods: {
@@ -109,6 +126,14 @@
 
                         // Убираем общие стили предыдущей игры
                         this.isWin = false
+
+                        // Перемешиваем картинки
+                        this.pics = this.shuffle(this.pics)
+
+                        // Скрываем все картинки для работоспособности перемешивания
+                        this.pics.forEach(pic => {
+                            pic.id = 'slide-hidden'
+                        })
 
                         // Объявляем что карусель крутиться
                         this.isSliding = true
@@ -170,17 +195,64 @@
                     this.pics.forEach(pic => {
                         pic.isWin = false
                     })
+                },
+
+                // Генерация массива картинок на вывод, в соответствии с вероятностями
+                generate() {
+                    this.picSrcs.forEach(picPath => {
+                        // Отделяем путь от названия файла, для того чтобы названия совпадали
+                        // с ключами в объекте вероятностей
+                        const picName = picPath.replace(this.picsPath, '')
+
+                        // Проверяем задана ли вероятность для этой картинки
+                        // Если нет выдаем ошибку
+                        if (!this.probabilities[picName]) {
+                            alert('ОШИБКА! Для одной из картинок не указана вероятность выпадения')
+                            throw new Error('One of pics does not have probability')
+                            return
+                        }
+
+                        // Проверяем равна ли сумма всех вероятностей 100. Ни больше, ни меньше
+                        let sum = 0
+                        
+                        Object.values(this.probabilities).forEach(value => {
+                            sum += value
+                        })
+
+                        if (sum != 100) {
+                            alert('ОШИБКА! Сумма вероятностей не равна 100%')
+                            throw new Error('Total value of all probabilities does not equal 100')
+                            return
+                        }
+
+
+                        // Создаем n-ое кол-во копий картинки в зависимости от вероятности
+                        for (let i = 0; i < this.probabilities[picName]; i++) {
+                            this.pics.push({
+                                path: picPath,
+                                id: null,
+                                isWin: false
+                            })
+                        }
+                    })
+                },
+
+                // Перемешивание массива
+                shuffle(array) {
+                    return array
+                        .map(value => ({ value, sort: Math.random() }))
+                        .sort((a, b) => a.sort - b.sort)
+                        .map(({ value }) => value)
                 }
             },
             mounted() {
                 // Конвертируем JSON который пришел из PHP в объект и получаем его значения в массив
-                this.pics = Object.values(JSON.parse(this.pics)).map(pic => {
-                    return {
-                        path: pic,
-                        id: null,
-                        isWin: false
-                    }
-                })
+                this.picSrcs = Object.values(JSON.parse(this.picSrcs))
+
+                // Генерируем картинки на показ, в соответствии с вероятностями
+                this.generate()
+
+                this.pics = this.shuffle(this.pics)
 
                 // Скрываем все картинки
                 this.pics.forEach(pic => {

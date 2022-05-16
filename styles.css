@@ -6,6 +6,7 @@
 
 body {
     background-color: #201e2a;
+    overflow: hidden;
 }
 
 .slide {
